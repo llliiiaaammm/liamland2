@@ -306,7 +306,15 @@
       const labels = ['sec','min','hr','day','wk','mo'];
       return `${Math.floor(n)} ${labels[i]} ago`;
     }
-    function escapeHtml(str){return str.replace(/[&<>"]g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
+    function escapeHtml(str) {
+      return (str ?? '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
 
     // minimal toast
     let toastTimer;
