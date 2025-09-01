@@ -5,42 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>liamland2 (L2)</title>
   <meta name="description" content="liamland2 — anonymous, always-on polls" />
-  <!-- Tailwind via CDN for quick start (you can switch to a build pipeline later) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" ] },
+          fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans"] },
+          keyframes: {
+            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
+            pop: { '0%': { transform: 'scale(.95)', opacity: .7 }, '100%': { transform: 'scale(1)', opacity: 1 } }
+          },
+          animation: {
+            floaty: 'floaty 6s ease-in-out infinite',
+            pop: 'pop .25s ease-out'
+          }
         }
       }
-    };
+    }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Supabase JS client -->
   <script type="module" crossorigin src="https://esm.sh/@supabase/supabase-js@2"></script>
   <style>
-    /* Minimal polish beyond Tailwind */
-    .glass { backdrop-filter: blur(8px); background: rgba(255,255,255,0.6) }
-    .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.08) }
+    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.65) }
+    .card-shadow { box-shadow: 0 12px 30px rgba(2,6,23,0.08) }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900">
-  <!-- Header / Nav -->
+<body class="min-h-screen text-slate-900 relative overflow-x-hidden bg-gradient-to-br from-yellow-50 via-pink-50 to-indigo-50">
+  <!-- Floating emojis background -->
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute left-10 top-20 text-5xl animate-floaty">🎉</div>
+    <div class="absolute right-12 top-32 text-6xl animate-floaty" style="animation-delay:1s">😎</div>
+    <div class="absolute left-1/2 bottom-10 text-5xl animate-floaty" style="animation-delay:2s">🔥</div>
+    <div class="absolute right-1/4 bottom-20 text-4xl animate-floaty" style="animation-delay:1.5s">⭐️</div>
+  </div>
+
+  <!-- Header -->
   <header class="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 glass">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-2xl bg-slate-900 text-white grid place-items-center font-bold">L2</div>
+        <div class="h-10 w-10 rounded-2xl bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white grid place-items-center font-extrabold shadow">🎲</div>
         <div>
           <h1 class="text-lg font-semibold leading-tight">liamland2 <span class="text-slate-400 font-normal">/ L2</span></h1>
-          <p class="text-xs text-slate-500 -mt-0.5">Anonymous, always-on school-safe polls</p>
+          <p class="text-xs text-slate-500 -mt-0.5">Anonymous & Interesting Polls</p>
         </div>
       </div>
       <div class="flex items-center gap-3 text-sm">
-        <span id="sessionLabel" class="px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600"></span>
-        <a href="#" id="resetSession" class="text-slate-500 hover:text-slate-700 underline decoration-dashed">new session</a>
+        <span id="sessionLabel" class="px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700"></span>
+        <a href="#" id="resetSession" class="text-indigo-600 hover:text-indigo-800 underline decoration-wavy">New anonymous account ✨</a>
       </div>
     </div>
   </header>
@@ -48,25 +61,24 @@
   <!-- Main -->
   <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
     <!-- Create Poll Card -->
-    <section class="card-shadow bg-white rounded-2xl border border-slate-200 p-5">
-      <div class="flex items-start justify-between gap-6">
+    <section class="card-shadow bg-white rounded-2xl border border-slate-200 p-5 animate-pop">
+      <div class="flex items-start gap-4">
         <div class="grow">
-          <h2 class="text-base font-semibold">Create a poll</h2>
+          <h2 class="text-base font-semibold flex items-center gap-2">Create a poll <span>📝</span></h2>
           <p class="text-sm text-slate-500">Keep it school‑appropriate. Options are comma‑separated (e.g., "Math, Science, History").</p>
           <form id="createPollForm" class="mt-4 space-y-3">
             <label class="block">
-              <span class="text-sm font-medium text-slate-700">Question</span>
-              <textarea id="question" required rows="2" class="mt-1 w-full resize-y rounded-xl border-slate-300 focus:border-slate-900 focus:ring-slate-900 placeholder:text-slate-400" placeholder="Who’s most likely to…? Or ask anything benign like ‘Favorite subject this week?’"></textarea>
+              <span class="text-sm font-medium text-slate-700">Question ❓</span>
+              <textarea id="question" required rows="2" class="mt-1 w-full resize-y rounded-xl border-slate-300 focus:border-pink-500 focus:ring-pink-500 placeholder:text-slate-400" placeholder="Who’s most likely to…? Or ask something fun like ‘Favorite subject this week?’"></textarea>
             </label>
             <label class="block">
-              <span class="text-sm font-medium text-slate-700">Options</span>
-              <input id="options" required type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:border-slate-900 focus:ring-slate-900 placeholder:text-slate-400" placeholder="Type options separated by commas — e.g., Cats, Dogs, Turtles" />
+              <span class="text-sm font-medium text-slate-700">Options 🎯</span>
+              <input id="options" required type="text" class="mt-1 w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-slate-400" placeholder="Type options separated by commas — e.g., Cats, Dogs, Turtles" />
             </label>
             <div class="flex items-center justify-between">
-              <div class="text-xs text-slate-500">Auto‑moderation is on. Inappropriate polls are blocked.</div>
-              <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-800 active:scale-[.99]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                Publish
+              <div class="text-xs text-slate-500">Auto‑moderation is on 🚫. Inappropriate polls are blocked.</div>
+              <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 text-white px-4 py-2 font-medium hover:opacity-90 active:scale-[.97]">
+                🚀 Publish
               </button>
             </div>
           </form>
@@ -74,14 +86,14 @@
       </div>
     </section>
 
-    <!-- Feed / Filters -->
+    <!-- Filters -->
     <section class="flex items-center justify-between">
-      <div class="flex items-center gap-2 text-sm">
-        <button data-filter="latest" class="filterBtn px-3 py-1.5 rounded-lg bg-slate-900 text-white">Latest</button>
-        <button data-filter="top" class="filterBtn px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-700">Top</button>
-        <button data-filter="mine" class="filterBtn px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-700">My polls</button>
+      <div class="flex items-center gap-2 text-sm bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button data-filter="latest" class="filterBtn px-3 py-1.5 rounded-lg bg-white border border-slate-200">⏰ Latest</button>
+        <button data-filter="top" class="filterBtn px-3 py-1.5 rounded-lg text-slate-700">🏆 Top</button>
+        <button data-filter="mine" class="filterBtn px-3 py-1.5 rounded-lg text-slate-700">🙋 My polls</button>
       </div>
-      <div class="text-xs text-slate-500">Live updates on new votes</div>
+      <div class="text-xs text-slate-500">⚡ Live updates on new votes</div>
     </section>
 
     <!-- Poll List -->
@@ -90,253 +102,7 @@
 
   <!-- Footer -->
   <footer class="max-w-5xl mx-auto px-4 py-10 text-center text-xs text-slate-500">
-    <p>liamland2 — built on Supabase • <a href="#" id="howLink" class="underline decoration-dashed">How it works</a></p>
+    <p>liamland2 — built by liam brill• <a href="#" id="howLink" class="underline decoration-dashed">How it works❔</a></p>
   </footer>
-
-  <!-- HOW IT WORKS modal (simple) -->
-  <dialog id="howDialog" class="backdrop:bg-black/30 rounded-2xl p-0 w-[42rem] max-w-[92vw]">
-    <div class="p-6 space-y-4">
-      <h3 class="text-lg font-semibold">How it works</h3>
-      <ol class="list-decimal list-inside text-sm text-slate-700 space-y-2">
-        <li>Anonymous session ID stored in your browser. No accounts.</li>
-        <li>Ask a school‑safe question, add comma‑separated options.</li>
-        <li>Tap to vote. One vote per user per poll (enforced by session ID).</li>
-        <li>Results update live. You can’t see who voted for what.</li>
-      </ol>
-      <div class="text-xs text-slate-500">Moderation blocks unsafe words. Abuse → delete and rate‑limit (server‑side recommended).</div>
-      <form method="dialog" class="pt-2 text-right">
-        <button class="rounded-xl bg-slate-900 text-white px-3 py-1.5">Close</button>
-      </form>
-    </div>
-  </dialog>
-
-  <!-- App Script -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-    // ===== CONFIG =====
-    // Replace these with your Supabase project details (URL + anon key).
-    // For Netlify, you can keep these as plain constants in this file (anon key is safe to expose)
-    // or inject at build time into this file.
-    const SUPABASE_URL = "https://pmognfsksimdjtghlosa.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb2duZnNrc2ltZGp0Z2hsb3NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDc0MjgsImV4cCI6MjA3MjMyMzQyOH0.Kgif7GmNUibc-7Xxzlpi4tgRfz3ZD80uhC7Xql7t1Xo";
-
-    if (SUPABASE_URL.includes("YOUR_PROJECT_ID")) {
-      console.warn("[liamland2] Set SUPABASE_URL and SUPABASE_ANON_KEY in index.html");
-    }
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false },
-      global: { headers: { "x-application-name": "liamland2" } }
-    });
-
-    // ===== SIMPLE ANON SESSION =====
-    const SESSION_KEY = "l2_session_id";
-    function uuidv4() {
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-      );
-    }
-    function getSessionId() {
-      let id = localStorage.getItem(SESSION_KEY);
-      if (!id) { id = `anon_${uuidv4()}`; localStorage.setItem(SESSION_KEY, id); }
-      return id;
-    }
-    function resetSession() {
-      localStorage.removeItem(SESSION_KEY);
-      location.reload();
-    }
-    const sessionId = getSessionId();
-    document.getElementById('sessionLabel').textContent = `session: ${sessionId.slice(0, 12)}…`;
-    document.getElementById('resetSession').addEventListener('click', (e) => { e.preventDefault(); resetSession(); });
-
-    // ===== BASIC MODERATION (CLIENT-SIDE; ADD SERVER-SIDE TOO) =====
-    const banned = [
-      // keep this list school-safe; extend as needed on server side
-      "kill", "suicide", "hate", "slur", "sex", "nude", "bully"
-    ];
-    function isClean(text) {
-      const t = (text || "").toLowerCase();
-      return !banned.some(w => t.includes(w));
-    }
-
-    // ===== CREATE POLL =====
-    const createForm = document.getElementById('createPollForm');
-    createForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const question = document.getElementById('question').value.trim();
-      const optionsRaw = document.getElementById('options').value.trim();
-      const options = optionsRaw.split(',').map(s => s.trim()).filter(Boolean);
-
-      if (question.length < 8) return alert('Question too short.');
-      if (options.length < 2) return alert('Add at least two options.');
-      if (options.length > 6) return alert('Max 6 options.');
-      if (!isClean(question) || !options.every(isClean)) return alert('Question or options failed moderation.');
-
-      const { data, error } = await supabase.from('polls').insert({
-        question,
-        options,
-        created_by: sessionId
-      }).select().single();
-
-      if (error) { console.error(error); alert('Failed to publish.'); return; }
-      createForm.reset();
-      prependPoll(data);
-    });
-
-    // ===== RENDERING =====
-    const pollList = document.getElementById('pollList');
-
-    function pollCard(p) {
-      const total = (p.counts || []).reduce((a,b)=>a+b,0);
-      const myVote = p.voted_option_index;
-      const createdAt = new Date(p.created_at);
-      const age = timeAgo(createdAt);
-
-      const card = document.createElement('article');
-      card.className = 'card-shadow bg-white rounded-2xl border border-slate-200 p-4';
-      card.innerHTML = `
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0">
-            <h3 class="font-medium text-slate-900">${escapeHtml(p.question)}</h3>
-            <p class="text-xs text-slate-500 mt-1">${age} • ${total} vote${total===1?'':'s'} • <span class="text-slate-400">${p.id.slice(0,8)}</span></p>
-          </div>
-          <button class="text-slate-400 hover:text-slate-600" title="Share" data-share="${p.id}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3.27 3.27 0 0 0 0-1.39l7.02-4.11a2.99 2.99 0 1 0-.93-1.5L8 9.8a3 3 0 1 0 0 4.41l7.05 4.13c.49-.42 1.12-.68 1.82-.68a2.99 2.99 0 1 0 0-5.98Z"/></svg>
-          </button>
-        </div>
-        <div class="mt-4 grid gap-2" id="opts_${p.id}"></div>
-      `;
-
-      const optsWrap = card.querySelector(`#opts_${p.id}`);
-      (p.options || []).forEach((opt, i) => {
-        const count = (p.counts && p.counts[i]) || 0;
-        const pct = total ? Math.round(count * 100 / total) : 0;
-        const voted = myVote === i;
-        const btn = document.createElement('button');
-        btn.className = `group relative overflow-hidden text-left rounded-xl border px-3 py-2 ${voted ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:border-slate-300 bg-white'}`;
-        btn.innerHTML = `
-          <div class="flex items-center justify-between gap-3">
-            <span class="truncate">${escapeHtml(opt)}</span>
-            <span class="text-xs ${voted ? 'text-white/80' : 'text-slate-500'}">${count} • ${pct}%</span>
-          </div>
-          <div class="absolute inset-y-0 left-0 pointer-events-none ${voted ? 'bg-white/10' : 'bg-slate-900/5'}" style="width:${pct}%;"></div>
-        `;
-        btn.addEventListener('click', () => castVote(p.id, i));
-        optsWrap.appendChild(btn);
-      });
-
-      // Share handler (copy URL with #poll-<id>)
-      card.querySelector('[data-share]')?.addEventListener('click', async () => {
-        const url = `${location.origin}${location.pathname}#poll-${p.id}`;
-        try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch { alert(url); }
-      });
-
-      return card;
-    }
-
-    function prependPoll(p) {
-      const el = pollCard(p);
-      pollList.prepend(el);
-    }
-
-    function replacePoll(p) {
-      const nodes = [...pollList.children];
-      const idx = nodes.findIndex(n => n.querySelector('[data-share]')?.getAttribute('data-share') === p.id);
-      if (idx >= 0) pollList.replaceChild(pollCard(p), nodes[idx]);
-    }
-
-    // ===== DATA FETCH =====
-    async function fetchPolls(mode = 'latest') {
-      const base = supabase.from('polls_with_counts'); // a Postgres view we define below
-      let q;
-      if (mode === 'top') q = base.select('*').order('total_votes', { ascending: false }).limit(50);
-      else if (mode === 'mine') q = base.select('*').eq('created_by', sessionId).order('created_at', { ascending: false }).limit(50);
-      else q = base.select('*').order('created_at', { ascending: false }).limit(50);
-
-      const { data, error } = await q;
-      if (error) { console.error(error); return; }
-      pollList.innerHTML = '';
-      data.forEach(d => {
-        // normalize counts array/name to match renderer
-        d.counts = d.counts || d.option_counts || [];
-        d.voted_option_index = d.my_vote_index ?? null;
-        prependPoll(d);
-      });
-    }
-
-    // Filter buttons
-    document.querySelectorAll('.filterBtn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const mode = btn.getAttribute('data-filter');
-        document.querySelectorAll('.filterBtn').forEach(b => b.classList.remove('bg-slate-900','text-white'));
-        btn.classList.add('bg-slate-900','text-white');
-        fetchPolls(mode);
-      });
-    });
-
-    // ===== VOTE =====
-    async function castVote(poll_id, option_index) {
-      const { error } = await supabase.from('votes').insert({ poll_id, option_index, voter_id: sessionId });
-      if (error) {
-        if (error.code === '23505') { return toast('You already voted.'); }
-        console.error(error); return toast('Vote failed.');
-      }
-      // The realtime subscription will update UI
-    }
-
-    // ===== REALTIME =====
-    // Listen to vote inserts and refresh the single poll view for latest counts.
-    const channel = supabase.channel('votes').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, async (payload) => {
-      const pollId = payload.new.poll_id;
-      const { data, error } = await supabase.from('polls_with_counts').select('*').eq('id', pollId).single();
-      if (!error && data) {
-        data.counts = data.counts || data.option_counts || [];
-        data.voted_option_index = data.my_vote_index ?? null;
-        replacePoll(data);
-      }
-    }).subscribe();
-
-    // ===== UTIL =====
-    function timeAgo(date) {
-      const s = Math.floor((Date.now() - date.getTime())/1000);
-      const units = [[60,'s'],[60,'m'],[24,'h'],[7,'d'],[4.345,'w'],[12,'mo']];
-      let i=0, n=s;
-      for (; i<units.length && n>=units[i][0]; i++) n/=units[i][0];
-      const labels = ['sec','min','hr','day','wk','mo'];
-      return `${Math.floor(n)} ${labels[i]} ago`;
-    }
-    function escapeHtml(str) {
-      return (str ?? '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      }[m]));
-    }
-
-    // minimal toast
-    let toastTimer;
-    function toast(msg){
-      clearTimeout(toastTimer);
-      let t=document.getElementById('toast');
-      if(!t){t=document.createElement('div');t.id='toast';t.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-3 py-2 rounded-xl shadow-lg';document.body.appendChild(t);} 
-      t.textContent=msg; t.style.opacity='1';
-      toastTimer=setTimeout(()=>{t.style.opacity='0';}, 2000);
-    }
-
-    // HOW modal
-    const howDialog = document.getElementById('howDialog');
-    document.getElementById('howLink').addEventListener('click', (e)=>{e.preventDefault(); howDialog.showModal();});
-
-    // Initial load
-    fetchPolls('latest');
-
-    // Deep link to a poll via #poll-<id> (optional)
-    if (location.hash.startsWith('#poll-')) {
-      // Could add a single-poll fetch here if needed
-    }
-  </script>
 </body>
 </html>
